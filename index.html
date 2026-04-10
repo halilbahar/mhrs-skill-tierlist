@@ -75,6 +75,12 @@ h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.8rem,5vw,3.2rem)
 /* LAYOUT */
 .app{max-width:1400px;margin:0 auto;padding:0 1rem 4rem}
 
+/* LOADING */
+.loading{text-align:center;padding:6rem 2rem;color:var(--text-muted)}
+.loading-ring{width:40px;height:40px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.error-msg{color:var(--tier-x);font-style:italic}
+
 /* SECTION LABEL */
 .slabel{font-family:'Cinzel',serif;font-size:.62rem;letter-spacing:.3em;color:var(--gold-dim);text-transform:uppercase;margin-bottom:.6rem;padding-left:.15rem}
 
@@ -159,6 +165,7 @@ h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.8rem,5vw,3.2rem)
 .sc-cat{font-size:.7rem;color:var(--text-muted);letter-spacing:.04em}
 .sc-deco{padding:0 .9rem 0 3rem;margin-bottom:.5rem}
 .deco-tag{background:var(--bg3);border:1px solid var(--border2);border-radius:3px;font-size:.65rem;color:var(--gold-dim);font-family:'Cinzel',serif;padding:.12rem .4rem;letter-spacing:.02em;display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-badge{display:inline-block;font-family:'Cinzel',serif;font-size:.52rem;letter-spacing:.08em;color:var(--amber);border:1px solid var(--amber-dim);border-radius:2px;padding:.08rem .3rem;margin-left:.35rem;vertical-align:middle;white-space:nowrap}
 .sc-desc{padding:0 .9rem 0 3rem;font-size:.82rem;color:var(--text-dim);font-style:italic;margin-bottom:.5rem;line-height:1.4}
 .sc-toggle{display:flex;align-items:center;gap:.4rem;padding:.3rem .9rem;background:none;border:none;border-top:1px solid var(--border);color:var(--text-muted);font-family:'Crimson Pro',serif;font-size:.72rem;cursor:pointer;width:100%;text-align:left;transition:color var(--tr),background var(--tr);margin-top:auto}
 .sc-toggle:hover{color:var(--text-dim);background:rgba(255,255,255,.02)}
@@ -192,133 +199,226 @@ h1{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.8rem,5vw,3.2rem)
   <div class="hrule"><div class="gem"></div></div>
 </header>
 
-<main class="app">
-
-  <p class="slabel">Select Weapon</p>
-  <div class="wgrid" id="wgrid"></div>
-
-  <div class="ctrl">
-    <div class="srchwrap">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input class="srch" id="srch" type="text" placeholder="Search skills, decos, categories&hellip;" autocomplete="off">
-    </div>
-    <div class="fgroup">
-      <span class="flabel">Category</span>
-      <div id="catFilters" style="display:flex;flex-wrap:wrap;gap:.35rem"></div>
-    </div>
-    <button class="nxbtn" id="nxbtn">Show N / X</button>
+<main class="app" id="app">
+  <div class="loading" id="loadingState">
+    <div class="loading-ring"></div>
+    <p>Loading skills&hellip;</p>
   </div>
-
-  <div class="legend">
-    <div class="li"><div class="lp" style="background:var(--tier-s-bg);color:var(--tier-s);border:1px solid var(--tier-s)">S</div>Essential / Best-in-slot</div>
-    <div class="li"><div class="lp" style="background:var(--tier-a-bg);color:var(--tier-a);border:1px solid var(--tier-a)">A</div>Very strong</div>
-    <div class="li"><div class="lp" style="background:var(--tier-b-bg);color:var(--tier-b);border:1px solid var(--tier-b)">B</div>Situationally useful</div>
-    <div class="li"><div class="lp" style="background:var(--tier-c-bg);color:var(--tier-c);border:1px solid var(--tier-c)">C</div>Niche / filler</div>
-    <div class="li"><div class="lp" style="background:var(--tier-n-bg);color:var(--tier-n);border:1px solid var(--tier-n)">N</div>Not applicable</div>
-    <div class="li"><div class="lp" style="background:var(--tier-x-bg);color:var(--tier-x);border:1px solid var(--tier-x)">X</div>DO NOT USE</div>
-  </div>
-
-  <div id="tierList"></div>
-
 </main>
 
 <script>
-const DATA={"meta":{"game":"Monster Hunter Rise: Sunbreak","version":"16.0.0 (Final Update)","source":"https://gamecat.fun/rise/en/index.php?title=SkillAndDeco","tiers":{"S":"Essential / Best-in-slot for this weapon. Always consider running.","A":"Very strong and recommended. Worth slotting if possible.","B":"Situationally useful or a solid secondary option.","C":"Minor benefit, niche, or easily replaced.","N":"Not applicable / no meaningful effect for this weapon.","X":"DO NOT USE \u2014 wastes slots, conflicts with playstyle, or has zero effect."},"weapons":["GS","LS","SNS","DB","Lance","GL","Hammer","HH","SA","CB","IG","LBG","HBG","Bow"]},"skills":[{"id":"attack_boost","name":"Attack Boost","category":"Offense - Raw","maxLevel":7,"decoName":"Attack Jewel 2 / Attack Jewel+ 4","decoSlot":2,"description":"Increases attack power.","levels":["Attack +3","Attack +6","Attack +9","Attack +5% Bonus: +7","Attack +6% Bonus: +8","Attack +8% Bonus: +9","Attack +10% Bonus: +10"],"ratings":{"GS":"A","LS":"A","SNS":"A","DB":"B","Lance":"A","GL":"B","Hammer":"A","HH":"A","SA":"A","CB":"A","IG":"A","LBG":"B","HBG":"B","Bow":"B"},"notes":"Strong universally at Lv4+. Raw weapons benefit most. Elemental weapons prefer elemental skills."},{"id":"agitator","name":"Agitator","category":"Offense - Conditional","maxLevel":5,"decoName":"Challenger Jewel 2 / Challenger Jewel+ 4","decoSlot":2,"description":"Increases attack power and affinity when large monsters become enraged.","levels":["Attack +4, Affinity +3% while active","Attack +8, Affinity +5% while active","Attack +12, Affinity +7% while active","Attack +16, Affinity +10% while active","Attack +20, Affinity +15% while active"],"ratings":{"GS":"A","LS":"S","SNS":"A","DB":"S","Lance":"A","GL":"B","Hammer":"A","HH":"A","SA":"A","CB":"A","IG":"A","LBG":"A","HBG":"A","Bow":"A"},"notes":"Monsters are enraged often. One of the best conditional offensive skills in Sunbreak."},{"id":"peak_performance","name":"Peak Performance","category":"Offense - Conditional","maxLevel":3,"decoName":"Flawless Jewel 2 / Flawless Jewel+ 4","decoSlot":2,"description":"Increases attack when your health is full.","levels":["Attack +5 while active","Attack +10 while active","Attack +20 while active"],"ratings":{"GS":"B","LS":"B","SNS":"C","DB":"C","Lance":"B","GL":"B","Hammer":"B","HH":"C","SA":"C","CB":"B","IG":"C","LBG":"B","HBG":"B","Bow":"C"},"notes":"Hard to maintain at full health. Synergizes with Resentment (run both for average uptime). Best on weapons with i-frames or blocking."},{"id":"resentment","name":"Resentment","category":"Offense - Conditional","maxLevel":5,"decoName":"Furor Jewel 2 / Furor Jewel+ 4","decoSlot":2,"description":"Increases attack when you have recoverable damage (the red portion of your health gauge).","levels":["Attack +5 while active","Attack +10 while active","Attack +15 while active","Attack +20 while active","Attack +25 while active"],"ratings":{"GS":"S","LS":"A","SNS":"B","DB":"A","Lance":"A","GL":"A","Hammer":"A","HH":"A","SA":"A","CB":"A","IG":"A","LBG":"A","HBG":"A","Bow":"A"},"notes":"Extremely high uptime. Any damage that isn't immediately healed triggers it. Near-permanent with Bloodrite Qurio augments."},{"id":"resuscitate","name":"Resuscitate","category":"Offense - Conditional","maxLevel":3,"decoName":"Crisis Jewel 2 / Crisis Jewel+ 4","decoSlot":2,"description":"Increases attack power when you are suffering from an abnormal status.","levels":["Attack +5 while active","Attack +10 while active","Attack +20 while active"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Situationally useful if you run status resist decos. Niche; not recommended for standard builds."},{"id":"critical_eye","name":"Critical Eye","category":"Offense - Affinity","maxLevel":7,"decoName":"Expert Jewel 2 / Expert Jewel+ 4","decoSlot":2,"description":"Increases affinity.","levels":["Affinity +5%","Affinity +10%","Affinity +15%","Affinity +20%","Affinity +25%","Affinity +30%","Affinity +40%"],"ratings":{"GS":"A","LS":"S","SNS":"A","DB":"S","Lance":"B","GL":"B","Hammer":"A","HH":"A","SA":"A","CB":"A","IG":"A","LBG":"A","HBG":"A","Bow":"S"},"notes":"Core for any affinity-crit build. Essential to reach 100% affinity on weak spots paired with WEX+Agitator."},{"id":"critical_boost","name":"Critical Boost","category":"Offense - Affinity","maxLevel":3,"decoName":"Critical Jewel 2","decoSlot":2,"description":"Increases the damage of critical hits.","levels":["Increases damage dealt by critical hits to 30%","Increases damage dealt by critical hits to 35%","Increases damage dealt by critical hits to 40%"],"ratings":{"GS":"S","LS":"S","SNS":"A","DB":"A","Lance":"B","GL":"B","Hammer":"S","HH":"A","SA":"A","CB":"A","IG":"A","LBG":"A","HBG":"A","Bow":"A"},"notes":"Best with high affinity builds. At Lv3 you deal 40% extra on crits. Diminishing returns if affinity is low."},{"id":"weakness_exploit","name":"Weakness Exploit","category":"Offense - Affinity","maxLevel":3,"decoName":"Tenderizer Jewel 2","decoSlot":2,"description":"Increases the affinity of attacks that exploit a monster weak spot.","levels":["Attacks that hit weak spots have 15% increased affinity","Attacks that hit weak spots have 30% increased affinity","Attacks that hit weak spots have 50% increased affinity"],"ratings":{"GS":"S","LS":"S","SNS":"S","DB":"S","Lance":"S","GL":"A","Hammer":"S","HH":"S","SA":"S","CB":"S","IG":"S","LBG":"S","HBG":"S","Bow":"S"},"notes":"Best-in-slot for every weapon class. +50% affinity on weak spots at Lv3 is unmatched. Must-have in all meta builds."},{"id":"latent_power","name":"Latent Power","category":"Offense - Conditional","maxLevel":5,"decoName":"Throttle Jewel 2 / Throttle Jewel+ 4","decoSlot":2,"description":"Temporarily increases affinity and reduces stamina depletion when certain conditions are met.","levels":["Affinity +10%, stamina depletion -30% while active","Affinity +20%, stamina depletion -30% while active","Affinity +30%, stamina depletion -50% while active","Affinity +40%, stamina depletion -50% while active","Affinity +50%, stamina depletion -50% while active"],"ratings":{"GS":"C","LS":"B","SNS":"B","DB":"A","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"B","CB":"C","IG":"B","LBG":"C","HBG":"C","Bow":"A"},"notes":"Activates after taking damage or dealing enough hits. Stamina reduction useful for DB/Bow. Generally outclassed by Agitator/WEX."},{"id":"maximum_might","name":"Maximum Might","category":"Offense - Conditional","maxLevel":3,"decoName":"Mighty Jewel 2 / Mighty Jewel+ 4","decoSlot":2,"description":"Increases affinity if stamina is kept full for a period of time.","levels":["Affinity +10% while active","Affinity +20% while active","Affinity +30% while active"],"ratings":{"GS":"A","LS":"C","SNS":"C","DB":"X","Lance":"C","GL":"C","Hammer":"A","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"B","HBG":"B","Bow":"X"},"notes":"Only active when stamina is full. DB and Bow constantly drain stamina \u2014 avoid. Great for GS/Hammer which rarely use stamina."},{"id":"critical_element","name":"Critical Element","category":"Offense - Elemental","maxLevel":3,"decoName":"Crit Element Jewel 2 / Crit Element Jewel+ 4","decoSlot":2,"description":"Increases elemental damage when landing critical hits.","levels":["Elemental damage +5% on crits","Elemental damage +10% on crits","Elemental damage +15% on crits"],"ratings":{"GS":"C","LS":"B","SNS":"B","DB":"S","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"B","CB":"C","IG":"B","LBG":"B","HBG":"C","Bow":"S"},"notes":"Core for elemental DB and elemental Bow. Pairs with high affinity builds. Little value on raw-focused weapons."},{"id":"masters_touch","name":"Master's Touch","category":"Sharpness","maxLevel":3,"decoName":"Mastery Jewel 2 / Mastery Jewel+ 4","decoSlot":2,"description":"Prevents your weapon from losing sharpness during critical hits.","levels":["20% chance of no sharpness loss on crit","40% chance of no sharpness loss on crit","80% chance of no sharpness loss on crit"],"ratings":{"GS":"A","LS":"S","SNS":"A","DB":"S","Lance":"N","GL":"N","Hammer":"A","HH":"A","SA":"A","CB":"A","IG":"A","LBG":"N","HBG":"N","Bow":"N"},"notes":"Requires high affinity to be effective. At 100% affinity + Lv3 = 80% chance to not lose sharpness. Useless on bows/bowguns."},{"id":"fire_attack","name":"Fire Attack","category":"Offense - Elemental","maxLevel":5,"decoName":"Blaze Jewel 1 / Blaze Jewel+ 2 / Hard Blaze Jewel 3 / Hard Blaze Jewel+ 4","decoSlot":1,"description":"Increases fire element attack power.","levels":["Fire attack +2","Fire attack +3","Fire attack +5%, Bonus: +4","Fire attack +10%, Bonus: +4","Fire attack +20%, Bonus: +4"],"ratings":{"GS":"C","LS":"B","SNS":"B","DB":"A","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"B","CB":"C","IG":"B","LBG":"B","HBG":"C","Bow":"A"},"notes":"Only run on Fire element weapons. Essential for elemental DB/Bow builds. Slot 1 decos are cheap."},{"id":"water_attack","name":"Water Attack","category":"Offense - Elemental","maxLevel":5,"decoName":"Stream Jewel 1 / Stream Jewel+ 2 / Hard Stream Jewel 3 / Hard Stream Jewel+ 4","decoSlot":1,"description":"Increases water element attack power.","levels":["Water attack +2","Water attack +3","Water attack +5%, Bonus: +4","Water attack +10%, Bonus: +4","Water attack +20%, Bonus: +4"],"ratings":{"GS":"C","LS":"B","SNS":"B","DB":"A","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"B","CB":"C","IG":"B","LBG":"B","HBG":"C","Bow":"A"},"notes":"Same as Fire Attack but for water element weapons."},{"id":"ice_attack","name":"Ice Attack","category":"Offense - Elemental","maxLevel":5,"decoName":"Frost Jewel 1 / Frost Jewel+ 2 / Hard Frost Jewel 3 / Hard Frost Jewel+ 4","decoSlot":1,"description":"Increases ice element attack power.","levels":["Ice attack +2","Ice attack +3","Ice attack +5%, Bonus: +4","Ice attack +10%, Bonus: +4","Ice attack +20%, Bonus: +4"],"ratings":{"GS":"C","LS":"B","SNS":"B","DB":"A","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"B","CB":"C","IG":"B","LBG":"B","HBG":"C","Bow":"A"},"notes":"Same as Fire Attack but for ice element weapons."},{"id":"thunder_attack","name":"Thunder Attack","category":"Offense - Elemental","maxLevel":5,"decoName":"Bolt Jewel 1 / Bolt Jewel+ 2 / Hard Bolt Jewel 3 / Hard Bolt Jewel+ 4","decoSlot":1,"description":"Increases thunder element attack power.","levels":["Thunder attack +2","Thunder attack +3","Thunder attack +5%, Bonus: +4","Thunder attack +10%, Bonus: +4","Thunder attack +20%, Bonus: +4"],"ratings":{"GS":"C","LS":"B","SNS":"B","DB":"A","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"B","CB":"C","IG":"B","LBG":"B","HBG":"C","Bow":"A"},"notes":"Same as Fire Attack but for thunder element weapons."},{"id":"dragon_attack","name":"Dragon Attack","category":"Offense - Elemental","maxLevel":5,"decoName":"Dragon Jewel 1 / Dragon Jewel+ 2 / Hard Dragon Jewel 3 / Hard Dragon Jewel+ 4","decoSlot":1,"description":"Increases dragon element attack power.","levels":["Dragon attack +2","Dragon attack +3","Dragon attack +5%, Bonus: +4","Dragon attack +10%, Bonus: +4","Dragon attack +20%, Bonus: +4"],"ratings":{"GS":"C","LS":"B","SNS":"B","DB":"A","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"B","CB":"C","IG":"B","LBG":"B","HBG":"C","Bow":"A"},"notes":"Same as Fire Attack but for dragon element weapons."},{"id":"poison_attack","name":"Poison Attack","category":"Status","maxLevel":3,"decoName":"Venom Jewel 1 / Hard Venom Jewel 4","decoSlot":1,"description":"Increases the rate of poison buildup.","levels":["Poison buildup +5%, Bonus: +1","Poison buildup +10%, Bonus: +2","Poison buildup +20%, Bonus: +5"],"ratings":{"GS":"C","LS":"C","SNS":"B","DB":"B","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"B","CB":"C","IG":"C","LBG":"B","HBG":"C","Bow":"B"},"notes":"Only useful on poison weapons. Status damage rarely justifies a slot on most builds."},{"id":"paralysis_attack","name":"Paralysis Attack","category":"Status","maxLevel":3,"decoName":"Paralyzer Jewel 2 / Paralyzer Jewel+ 4","decoSlot":2,"description":"Increases the rate of paralysis buildup.","levels":["Paralysis buildup +5%, Bonus: +1","Paralysis buildup +10%, Bonus: +2","Paralysis buildup +20%, Bonus: +5"],"ratings":{"GS":"C","LS":"C","SNS":"B","DB":"B","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"B","CB":"C","IG":"C","LBG":"B","HBG":"C","Bow":"B"},"notes":"Only on paralysis weapons. Para is strong in multiplayer for locking monsters."},{"id":"sleep_attack","name":"Sleep Attack","category":"Status","maxLevel":3,"decoName":"Sleep Jewel 2 / Sleep Jewel+ 4","decoSlot":2,"description":"Increases the rate of sleep buildup.","levels":["Sleep buildup +5%, Bonus: +1","Sleep buildup +10%, Bonus: +2","Sleep buildup +20%, Bonus: +5"],"ratings":{"GS":"C","LS":"C","SNS":"B","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"B","HBG":"C","Bow":"C"},"notes":"Niche sleep bombing strategy. Rarely worth a slot outside dedicated sleep builds."},{"id":"blast_attack","name":"Blast Attack","category":"Status","maxLevel":3,"decoName":"Blast Jewel 2 / Blast Jewel+ 4","decoSlot":2,"description":"Increases the rate of blast buildup.","levels":["Blast buildup +5%, Bonus: +1","Blast buildup +10%, Bonus: +2","Blast buildup +20%, Bonus: +5"],"ratings":{"GS":"C","LS":"B","SNS":"B","DB":"B","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"B","CB":"C","IG":"B","LBG":"B","HBG":"C","Bow":"B"},"notes":"Blast is one of the stronger status effects for DPS. Useful on blast elemental weapons."},{"id":"handicraft","name":"Handicraft","category":"Sharpness","maxLevel":5,"decoName":"Handicraft Jewel 3 / Handicraft Jewel+ 4","decoSlot":3,"description":"Extends the weapon sharpness gauge. Will not increase past maximum.","levels":["Weapon sharpness +10","Weapon sharpness +20","Weapon sharpness +30","Weapon sharpness +40","Weapon sharpness +50"],"ratings":{"GS":"B","LS":"A","SNS":"B","DB":"B","Lance":"B","GL":"N","Hammer":"B","HH":"B","SA":"B","CB":"B","IG":"B","LBG":"N","HBG":"N","Bow":"N"},"notes":"Weapon-specific. Needed to push certain weapons into white or purple sharpness. Check weapon sharpness chart first."},{"id":"razor_sharp","name":"Razor Sharp","category":"Sharpness","maxLevel":3,"decoName":"Razor Jewel 2 / Razor Jewel+ 4","decoSlot":2,"description":"Prevents your weapon from losing sharpness.","levels":["Activates 10% of the time","Activates 25% of the time","Activates 50% of the time"],"ratings":{"GS":"B","LS":"B","SNS":"B","DB":"A","Lance":"B","GL":"N","Hammer":"B","HH":"B","SA":"B","CB":"B","IG":"B","LBG":"N","HBG":"N","Bow":"N"},"notes":"Good alternative to Master's Touch in non-affinity builds. DB hits so fast Lv3 = ~50% sharpness saving."},{"id":"spare_shot","name":"Spare Shot","category":"Ammo/Coating","maxLevel":3,"decoName":"Thrift Jewel 2 / Thrift Jewel+ 4","decoSlot":2,"description":"Bow and bowgun shots have a chance not to expend coatings or ammo.","levels":["Activates 3% of the time","Activates 10% of the time","Activates 20% of the time"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"A","HBG":"A","Bow":"S"},"notes":"Bow and bowgun ONLY. Essential for Bow (saves Power Coatings). Important for LBG/HBG ammo conservation."},{"id":"protective_polish","name":"Protective Polish","category":"Sharpness","maxLevel":3,"decoName":"Sharp Jewel 2 / Sharp Jewel+ 4","decoSlot":2,"description":"Weapon sharpness does not decrease for a set time after sharpening.","levels":["Effect lasts 30 seconds","Effect lasts 60 seconds","Effect lasts 90 seconds"],"ratings":{"GS":"A","LS":"B","SNS":"B","DB":"C","Lance":"B","GL":"N","Hammer":"B","HH":"B","SA":"B","CB":"B","IG":"B","LBG":"N","HBG":"N","Bow":"N"},"notes":"Excellent on GS which has long guard points and natural openings to sharpen. Not ideal for fast-hitting weapons."},{"id":"minds_eye","name":"Mind's Eye","category":"Offense - Raw","maxLevel":3,"decoName":"Mind's Eye Jewel 2 / Mind's Eye Jewel+ 4","decoSlot":2,"description":"Your attacks are deflected less and deal more damage to hard targets.","levels":["50% chance of no deflect. +10% damage to hard targets on activation","100% chance of no deflect. +15% damage to hard targets on activation","100% chance of no deflect. +30% damage to hard targets on activation"],"ratings":{"GS":"B","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"B","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"N","HBG":"N","Bow":"N"},"notes":"Niche \u2014 mainly useful when hitting hard bouncy parts. GS/Hammer can sometimes benefit on specific monster targets."},{"id":"ballistics","name":"Ballistics","category":"Ammo/Coating","maxLevel":3,"decoName":"Precise Jewel 2 / Precise Jewel+ 4","decoSlot":2,"description":"Extends the range in which ammo and arrows have maximum power.","levels":["Slightly extends range","Extends range","Greatly extends range"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"A","HBG":"S","Bow":"B"},"notes":"Primarily HBG \u2014 extends critical distance significantly. Allows HBG to stay further back. LBG benefits less."},{"id":"bludgeoner","name":"Bludgeoner","category":"Offense - Raw","maxLevel":3,"decoName":"Blunt Jewel 2","decoSlot":2,"description":"Increases attack power when your weapon sharpness is low.","levels":["+5% attack when sharpness is yellow or lower","+10% attack when sharpness is yellow or lower","+10% attack when sharpness is green or lower"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"N","Hammer":"B","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"N","HBG":"N","Bow":"N"},"notes":"Niche for Hammer which can intentionally run low sharpness. Not worth it on most weapons."},{"id":"bow_charge_plus","name":"Bow Charge Plus","category":"Weapon-Specific","maxLevel":1,"decoName":"Mighty Bow Jewel 4","decoSlot":4,"description":"Increases max bow charge level by one.","levels":["Activates skill effect"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"N","HBG":"N","Bow":"S"},"notes":"BOW ONLY. Absolutely mandatory for Bow. Unlocks the highest charge level for massive DPS gain."},{"id":"focus","name":"Focus","category":"Weapon-Specific","maxLevel":3,"decoName":"Charger Jewel 2 / Charger Jewel+ 4","decoSlot":2,"description":"Increases the fill rate for weapons with gauges and the charge rate for weapons with charge attacks.","levels":["5% faster gauge fill / charge time","10% faster gauge fill / charge time","20% faster gauge fill / 15% faster charge time"],"ratings":{"GS":"B","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"A","HH":"N","SA":"B","CB":"S","IG":"N","LBG":"N","HBG":"N","Bow":"A"},"notes":"CB: fills phials faster \u2014 near essential. Hammer: charges TCS faster. Bow: reaches max charge faster. GS: slightly faster TCS. No effect on most weapons."},{"id":"power_prolonger","name":"Power Prolonger","category":"Weapon-Specific","maxLevel":3,"decoName":"Enhancer Jewel 2 / Enhancer Jewel+ 4","decoSlot":2,"description":"Long swords, dual blades, insect glaives, switch axes, and charge blades stay powered up longer.","levels":["Slightly boosts duration weapons are powered up","Boosts duration weapons are powered up","Greatly boosts duration weapons are powered up"],"ratings":{"GS":"N","LS":"S","SNS":"N","DB":"A","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"A","CB":"A","IG":"A","LBG":"N","HBG":"N","Bow":"N"},"notes":"Only affects LS, DB, IG, SA, CB. For LS, extends Iai Slash buff duration. For SA/CB, extends amp/sword mode. Must-have on LS."},{"id":"marathon_runner","name":"Marathon Runner","category":"Stamina","maxLevel":3,"decoName":"Sprinter Jewel 2 / Sprinter Jewel+ 4","decoSlot":2,"description":"Slows down stamina depletion for actions which continuously drain stamina.","levels":["Reduces continuous stamina depletion by 15%","Reduces continuous stamina depletion by 30%","Reduces continuous stamina depletion by 50%"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"A","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"N","HBG":"N","Bow":"A"},"notes":"DB and Bow mainly. Both drain stamina constantly during Archdemon Mode / Power Shots. Use with Constitution."},{"id":"constitution","name":"Constitution","category":"Stamina","maxLevel":5,"decoName":"Physique Jewel 2 / Physique Jewel+ 4","decoSlot":2,"description":"Reduces stamina depletion when evading, blocking, or doing certain other actions.","levels":["Reduces fixed stamina depletion by 10%","Reduces fixed stamina depletion by 20%","Reduces fixed stamina depletion by 30%","Reduces fixed stamina depletion by 40%","Reduces fixed stamina depletion by 50%"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"A","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"N","HBG":"N","Bow":"S"},"notes":"Essential for Bow. Reduces stamina use on Power Shots and dodges. DB also benefits. No value on non-stamina weapons."},{"id":"stamina_surge","name":"Stamina Surge","category":"Stamina","maxLevel":3,"decoName":"Refresh Jewel 2 / Refresh Jewel+ 4","decoSlot":2,"description":"Speeds up stamina recovery.","levels":["Stamina recovery speed +10%","Stamina recovery speed +20%","Stamina recovery speed +40%"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"B","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"N","HBG":"N","Bow":"B"},"notes":"Minor QoL for stamina-heavy weapons. Generally outclassed by Constitution/Marathon Runner."},{"id":"guard","name":"Guard","category":"Guarding","maxLevel":5,"decoName":"Ironwall Jewel 2 / Ironwall Jewel+ 3","decoSlot":2,"description":"Reduces knockbacks and stamina depletion when guarding.","levels":["Very slightly decreases impact of attacks","Slightly decreases impact and reduces stamina depletion by 15%","Decreases impact and reduces stamina depletion by 15%","Decreases impact and reduces stamina depletion by 30%","Greatly decreases impact and reduces stamina depletion by 30%"],"ratings":{"GS":"B","LS":"X","SNS":"A","DB":"X","Lance":"S","GL":"S","Hammer":"X","HH":"X","SA":"N","CB":"S","IG":"X","LBG":"N","HBG":"B","Bow":"X"},"notes":"ONLY for weapons that guard. LS/DB/Hammer/HH/IG/Bow cannot guard \u2014 DO NOT USE. Essential for Lance, GL, CB. GS can Perfect Guard but rarely needs Guard levels."},{"id":"guard_up","name":"Guard Up","category":"Guarding","maxLevel":3,"decoName":"Shield Jewel 2 / Shield Jewel+ 4","decoSlot":2,"description":"Allows you to guard against ordinarily unblockable attacks.","levels":["Reduces damage taken by 30%","Reduces damage taken by 50%","Reduces damage taken by 80%"],"ratings":{"GS":"C","LS":"X","SNS":"B","DB":"X","Lance":"A","GL":"A","Hammer":"X","HH":"X","SA":"N","CB":"A","IG":"X","LBG":"N","HBG":"B","Bow":"X"},"notes":"Same as Guard \u2014 shield weapons only. Situational even then; mainly useful against specific monster attacks."},{"id":"offensive_guard","name":"Offensive Guard","category":"Guarding","maxLevel":3,"decoName":"Guardian Jewel 3 / Guardian Jewel+ 4","decoSlot":3,"description":"Temporarily increases attack power after executing a perfectly-timed guard.","levels":["Attack +5% while active","Attack +10% while active","Attack +15% while active"],"ratings":{"GS":"B","LS":"X","SNS":"B","DB":"X","Lance":"S","GL":"A","Hammer":"X","HH":"X","SA":"N","CB":"S","IG":"X","LBG":"N","HBG":"C","Bow":"X"},"notes":"Triggered by perfect-timed guards. Phenomenal for Lance and CB which guard constantly. DO NOT USE on non-shield weapons."},{"id":"critical_draw","name":"Critical Draw","category":"Weapon-Specific","maxLevel":3,"decoName":"Draw Jewel 3 / Draw Jewel+ 4","decoSlot":3,"description":"Increases affinity for a short time after performing a draw attack.","levels":["Affinity +10%","Affinity +20%","Affinity +40%"],"ratings":{"GS":"B","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"N","HBG":"N","Bow":"N"},"notes":"GS has a specific draw-attack playstyle that can use this. Generally outclassed in modern builds."},{"id":"punishing_draw","name":"Punishing Draw","category":"Weapon-Specific","maxLevel":3,"decoName":"Gambit Jewel 2 / Gambit Jewel+ 4","decoSlot":2,"description":"Adds a stun effect to draw attacks and slightly increases attack power.","levels":["Draw attacks deal small stun damage, Attack +3","Draw attacks deal small stun damage, Attack +5","Draw attacks deal small stun damage, Attack +7"],"ratings":{"GS":"B","LS":"C","SNS":"C","DB":"C","Lance":"N","GL":"N","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"N","HBG":"N","Bow":"N"},"notes":"Very niche. GS draw playstyle only. Stun utility is minimal at endgame."},{"id":"quick_sheathe","name":"Quick Sheathe","category":"Utility","maxLevel":3,"decoName":"Sheath Jewel 2 / Sheath Jewel+ 4","decoSlot":2,"description":"Speeds up weapon sheathing.","levels":["Slightly increases sheathing speed","Moderately increases sheathing speed","Greatly increases sheathing speed"],"ratings":{"GS":"B","LS":"A","SNS":"C","DB":"C","Lance":"N","GL":"N","Hammer":"B","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"B","HBG":"B","Bow":"B"},"notes":"LS benefits because ISS counter requires sheathing. GS/Hammer QoL. Gunners appreciate it for Wirebug moves."},{"id":"slugger","name":"Slugger","category":"Status","maxLevel":3,"decoName":"KO Jewel 2 / KO Jewel+ 4","decoSlot":2,"description":"Makes it easier to stun monsters.","levels":["Stun power +20%","Stun power +30%","Stun power +40%"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"S","HH":"A","SA":"C","CB":"B","IG":"C","LBG":"C","HBG":"B","Bow":"C"},"notes":"Hammer is the KO king \u2014 Slugger is near-mandatory. HH also deals KO. Essentially no KO on other weapons."},{"id":"stamina_thief","name":"Stamina Thief","category":"Status","maxLevel":3,"decoName":"Drain Jewel 1 / Hard Drain Jewel 4","decoSlot":1,"description":"Increases certain attacks' ability to exhaust monsters.","levels":["Exhaust power +20%","Exhaust power +30%","Exhaust power +40%"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"B","HH":"B","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Niche. Only attacks with exhaust property benefit. Mainly Hammer/HH blunt hits. Slot 1 cost is low though."},{"id":"affinity_sliding","name":"Affinity Sliding","category":"Offense - Affinity","maxLevel":1,"decoName":"Slider Jewel 1","decoSlot":1,"description":"Sliding increases your affinity for a short time.","levels":["Grants affinity boost after sliding"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Small slot 1 cost so sometimes thrown in. Very minor benefit, filler only."},{"id":"horn_maestro","name":"Horn Maestro","category":"Weapon-Specific","maxLevel":1,"decoName":"Sonorous Jewel 1","decoSlot":1,"description":"Increases overall performance speed and shockwave damage.","levels":["Activates skill effect"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"S","SA":"N","CB":"N","IG":"N","LBG":"N","HBG":"N","Bow":"N"},"notes":"HH ONLY. Mandatory for Hunting Horn \u2014 faster songs and increased Echo/Shockwave damage."},{"id":"artillery","name":"Artillery","category":"Weapon-Specific","maxLevel":3,"decoName":"Artillery Jewel 2 / Artillery Jewel+ 4","decoSlot":2,"description":"Strengthens explosive attacks like shells, Wyvern's Fire, charge blade phial attacks, and Sticky Ammo.","levels":["Explosive attack +10%, Wyvern's Fire cooldown -15%","Explosive attack +20%, Wyvern's Fire cooldown -30%","Explosive attack +30%, Wyvern's Fire cooldown -50%"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"S","Hammer":"N","HH":"N","SA":"N","CB":"S","IG":"N","LBG":"B","HBG":"A","Bow":"N"},"notes":"Mandatory for GL (shells) and CB (phials). Strong on HBG Sticky builds. Zero effect on GS/LS/DB etc."},{"id":"load_shells","name":"Load Shells","category":"Weapon-Specific","maxLevel":2,"decoName":"Magazine Jewel 2 / Magazine Jewel+ 4","decoSlot":2,"description":"Improves reloading, and increases gunlance shell capacity and charge blade phial capacity.","levels":["Increases ammo and coating reload speed","GL loading capacity +1, increases CB phials"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"A","Hammer":"N","HH":"N","SA":"N","CB":"B","IG":"N","LBG":"B","HBG":"B","Bow":"B"},"notes":"GL: gives +1 shell = more burst damage per loop. CB: extra phials is nice. Bowguns: faster reload QoL."},{"id":"special_ammo_boost","name":"Special Ammo Boost","category":"Ammo/Coating","maxLevel":2,"decoName":"Trueshot Jewel 2 / Trueshot Jewel+ 4","decoSlot":2,"description":"Increases the power of bowgun special ammo and Dragon Piercer.","levels":["Special ammo and Dragon Piercer +10%","Special ammo and Dragon Piercer +20%"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"B","HBG":"A","Bow":"B"},"notes":"Bow: boosts Dragon Piercer. HBG: boosts Wyvernheart/Wyvernsnipe. Useful on specific builds."},{"id":"normal_rapid_up","name":"Normal/Rapid Up","category":"Ammo/Coating","maxLevel":3,"decoName":"Forceshot Jewel 3 / Forceshot Jewel+ 4","decoSlot":3,"description":"Increases the attack power of Normal Ammo and Rapid-type arrows.","levels":["Slightly increases Normal/Rapid power","Increases Normal/Rapid power","Greatly increases Normal/Rapid power"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"S","HBG":"A","Bow":"A"},"notes":"Core for Normal LBG builds. Bow uses Rapid arrows. HBG Normal 3 is a strong ammo type."},{"id":"pierce_up","name":"Pierce Up","category":"Ammo/Coating","maxLevel":3,"decoName":"Pierce Jewel 3 / Pierce Jewel+ 4","decoSlot":3,"description":"Increases the attack power of Piercing Ammo and Piercing-type arrows.","levels":["Slightly increases Pierce power","Increases Pierce power","Greatly increases Pierce power"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"A","HBG":"S","Bow":"A"},"notes":"HBG Pierce 3 is one of the strongest ammo types. Core for Pierce HBG builds."},{"id":"spread_up","name":"Spread Up","category":"Ammo/Coating","maxLevel":3,"decoName":"Spread Jewel 3 / Spread Jewel+ 4","decoSlot":3,"description":"Increases the attack power of Spread Ammo and Spread-type arrows.","levels":["Slightly increases Spread/Shrapnel power","Increases Spread/Shrapnel power","Greatly increases Spread/Shrapnel power"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"B","HBG":"A","Bow":"A"},"notes":"HBG Spread/Shrapnel and Bow Close-Range builds. Very high damage up close."},{"id":"ammo_up","name":"Ammo Up","category":"Ammo/Coating","maxLevel":3,"decoName":"Capacity Jewel 3 / Capacity Jewel+ 4","decoSlot":3,"description":"Increases bowgun loading capacity.","levels":["Expands clip size for some ammo","Expands clip size for many ammo","Expands clip size for most ammo"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"A","HBG":"S","Bow":"N"},"notes":"HBG and LBG only. More ammo per reload = more uptime. Essential for HBG. Bow uses coatings, not ammo capacity."},{"id":"reload_speed","name":"Reload Speed","category":"Ammo/Coating","maxLevel":3,"decoName":"Quickload Jewel 1","decoSlot":1,"description":"Increases bowgun reloading and bow coating loading speed.","levels":["Bowgun speed +1, improves bow handling","Bowgun speed +2, bow coatings load automatically","Bowgun speed +3"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"A","HBG":"B","Bow":"A"},"notes":"LBG: essential to prevent reload animation slowdown. Bow: auto-loads coatings at Lv2."},{"id":"recoil_down","name":"Recoil Down","category":"Ammo/Coating","maxLevel":3,"decoName":"Absorber Jewel 1","decoSlot":1,"description":"Reduces recoil when firing bowgun ammo.","levels":["Recoil -1","Recoil -2","Recoil -3"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"S","HBG":"A","Bow":"N"},"notes":"Bowgun only. Reduces animation stagger after shots, increasing DPS. Near-mandatory for LBG."},{"id":"steadiness","name":"Steadiness","category":"Ammo/Coating","maxLevel":2,"decoName":"Sniper Jewel 1 / Hard Sniper Jewel 4 / Sniper Jewel+ 4","decoSlot":1,"description":"Suppresses the deviation of bowgun shots.","levels":["Deviation -1","Deviation -2"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"A","HBG":"A","Bow":"N"},"notes":"Bowgun only. Reduces left/right shot deviation. Necessary if your bowgun has deviation \u2014 otherwise skip."},{"id":"rapid_fire_up","name":"Rapid Fire Up","category":"Ammo/Coating","maxLevel":3,"decoName":"Salvo Jewel 3","decoSlot":3,"description":"Improves light bowgun rapid fire.","levels":["Rapid fire damage +5%","Rapid fire damage +10%","Rapid fire damage +20%"],"ratings":{"GS":"N","LS":"N","SNS":"N","DB":"N","Lance":"N","GL":"N","Hammer":"N","HH":"N","SA":"N","CB":"N","IG":"N","LBG":"S","HBG":"N","Bow":"N"},"notes":"LBG ONLY. Rapid fire is the core LBG mechanic \u2014 this is mandatory."},{"id":"defense_boost","name":"Defense Boost","category":"Defense","maxLevel":7,"decoName":"Defense Jewel 1 / Defense Jewel+ 2 / Hard Defense Jewel 3 / Hard Defense Jewel++ 4","decoSlot":1,"description":"Increases defense. Resistances improve at higher levels.","levels":["Defense +5","Defense +10","Defense +5%, Bonus: +10","Defense +5%, Bonus: +20, All elemental res +3","Defense +8%, Bonus: +20, All elemental res +3","Defense +8%, Bonus: +35, All elemental res +5","Defense +10%, Bonus: +35, All elemental res +5"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Filler only. Defense has very little impact at endgame Sunbreak. Only consider if you're dying frequently."},{"id":"divine_blessing","name":"Divine Blessing","category":"Defense","maxLevel":3,"decoName":"Protection Jewel 2 / Protection Jewel+ 4","decoSlot":2,"description":"Has a predetermined chance of reducing the damage you take.","levels":["Reduces damage taken by 15% while active","Reduces damage taken by 30% while active","Reduces damage taken by 50% while active"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Useful for learning fights. Not ideal for meta builds but solid QoL insurance."},{"id":"recovery_up","name":"Recovery Up","category":"Defense","maxLevel":3,"decoName":"Medicine Jewel 2 / Medicine Jewel+ 4","decoSlot":2,"description":"Increases the amount recovered when restoring health.","levels":["Slightly increases recovery","Increases recovery","Greatly increases recovery"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Niche. Only useful if you're healing very frequently. Synergizes with Bloodblight mechanic."},{"id":"recovery_speed","name":"Recovery Speed","category":"Defense","maxLevel":3,"decoName":"Recovery Jewel 1 / Hard Recovery Jewel 4","decoSlot":1,"description":"Speeds healing of recoverable damage.","levels":["Doubles the speed of recoverable damage healing","Triples the speed of recoverable damage healing","Quadruples the speed of recoverable damage healing"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Allows Resentment uptime. Synergizes well with Resentment builds \u2014 recoverable hp stays without healing."},{"id":"speed_eating","name":"Speed Eating","category":"Utility","maxLevel":3,"decoName":"Gobbler Jewel 2 / Gobbler Jewel+ 4","decoSlot":2,"description":"Increases meat-eating and item-consumption speed.","levels":["Slightly increases eating speed","Increases eating speed","Greatly increases eating speed"],"ratings":{"GS":"B","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Minor QoL. Mostly filler."},{"id":"earplugs","name":"Earplugs","category":"Utility","maxLevel":5,"decoName":"Earplug Jewel 3 / Earplug Jewel+ 4","decoSlot":3,"description":"Grants protection from large monsters' roars.","levels":["Reduces weak monster roars","Nullifies weak monster roars","Nullifies weak roars, reduces strong roars","Nullifies weak and strong roars","Nullifies weak and strong roars, reduces powerful roars"],"ratings":{"GS":"B","LS":"B","SNS":"B","DB":"B","Lance":"C","GL":"C","Hammer":"B","HH":"C","SA":"B","CB":"B","IG":"B","LBG":"B","HBG":"B","Bow":"B"},"notes":"Situational QoL \u2014 monster dependent. Lance/GL can guard through roars. Worth considering on aggressive combo weapons."},{"id":"windproof","name":"Windproof","category":"Utility","maxLevel":3,"decoName":"Wind Res Jewel 1 / Hard Wind Res Jewel 4","decoSlot":1,"description":"Grants protection against wind pressure.","levels":["Negates minor wind pressure","Negates minor and major wind pressure","Negates minor and major wind pressure, reduces dragon wind pressure"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Monster-specific utility. Low cost slot 1 decos. Mostly filler."},{"id":"tremor_resistance","name":"Tremor Resistance","category":"Utility","maxLevel":3,"decoName":"Footing Jewel 2 / Footing Jewel+ 4","decoSlot":2,"description":"Grants protection against ground tremors.","levels":["Nullifies minor ground tremors","Nullifies minor tremors, reduces major tremors","Nullifies minor and major ground tremors"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Situational against specific monsters (e.g., Barroth, Rajang). Not worth a slot in general."},{"id":"evade_window","name":"Evade Window","category":"Utility","maxLevel":5,"decoName":"Evasion Jewel 2 / Evasion Jewel+ 4","decoSlot":2,"description":"Extends the invulnerability period when evading.","levels":["Very slightly increases i-frames","Slightly increases i-frames","Increases i-frames","Greatly increases i-frames","Massively increases i-frames"],"ratings":{"GS":"B","LS":"B","SNS":"B","DB":"A","Lance":"C","GL":"C","Hammer":"B","HH":"C","SA":"B","CB":"B","IG":"B","LBG":"B","HBG":"B","Bow":"A"},"notes":"Good survivability skill. DB and Bow dodge frequently and benefit most. Lance/GL guard instead."},{"id":"evade_extender","name":"Evade Extender","category":"Utility","maxLevel":3,"decoName":"Jumping Jewel 2 / Jumping Jewel+ 4","decoSlot":2,"description":"Increases evade distance.","levels":["Slightly extends evasion distance","Extends evasion distance","Greatly extends evasion distance"],"ratings":{"GS":"B","LS":"A","SNS":"B","DB":"A","Lance":"C","GL":"C","Hammer":"B","HH":"C","SA":"B","CB":"B","IG":"B","LBG":"B","HBG":"B","Bow":"A"},"notes":"Great for repositioning. Helps mobile weapons stay in range while dodging. LS ISS counter positioning."},{"id":"blight_resistance","name":"Blight Resistance","category":"Resistance","maxLevel":3,"decoName":"Resistor Jewel 2 / Resistor Jewel+ 4","decoSlot":2,"description":"Grants protection against all elemental blights.","levels":["Reduces elemental blight duration by 50%","Reduces elemental blight duration by 75%","Nullifies all elemental blights"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Monster-specific. Use situationally against monsters that heavily inflict blights."},{"id":"fire_resistance","name":"Fire Resistance","category":"Resistance","maxLevel":3,"decoName":"Fire Res Jewel 1 / Hard Fire Res Jewel 4","decoSlot":1,"description":"Increases fire resistance.","levels":["Fire res +6","Fire res +12","Fire res +20, Defense +10"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Purely defensive filler. Monster-specific."},{"id":"water_resistance","name":"Water Resistance","category":"Resistance","maxLevel":3,"decoName":"Water Res Jewel 1 / Hard Water Res Jewel 4","decoSlot":1,"description":"Increases water resistance.","levels":["Water res +6","Water res +12","Water res +20, Defense +10"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Purely defensive filler. Monster-specific."},{"id":"ice_resistance","name":"Ice Resistance","category":"Resistance","maxLevel":3,"decoName":"Ice Res Jewel 1 / Hard Ice Res Jewel 4","decoSlot":1,"description":"Increases ice resistance.","levels":["Ice res +6","Ice res +12","Ice res +20, Defense +10"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Purely defensive filler. Monster-specific."},{"id":"thunder_resistance","name":"Thunder Resistance","category":"Resistance","maxLevel":3,"decoName":"Thunder Res Jewel 1 / Hard Thunder Res Jewel 4","decoSlot":1,"description":"Increases thunder resistance.","levels":["Thunder res +6","Thunder res +12","Thunder res +20, Defense +10"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Purely defensive filler. Monster-specific."},{"id":"dragon_resistance","name":"Dragon Resistance","category":"Resistance","maxLevel":3,"decoName":"Dragon Res Jewel 1 / Hard Dragon Res Jewel 4","decoSlot":1,"description":"Increases dragon resistance.","levels":["Dragon res +6","Dragon res +12","Dragon res +20, Defense +10"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Purely defensive filler. Monster-specific."},{"id":"poison_resistance","name":"Poison Resistance","category":"Resistance","maxLevel":3,"decoName":"Antidote Jewel 1 / Hard Antidote Jewel 4","decoSlot":1,"description":"Reduces damage while poisoned.","levels":["Reduces poison damage frequency","Greatly reduces poison damage","Prevents poison, reduces venom"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Situational. Use Antidotes or slot if facing heavy-poison monsters."},{"id":"paralysis_resistance","name":"Paralysis Resistance","category":"Resistance","maxLevel":3,"decoName":"Antipara Jewel 1 / Hard Antipara Jewel 4","decoSlot":1,"description":"Reduces the duration of paralysis.","levels":["Reduces para duration by 30%","Reduces para duration by 60%","Prevents paralysis"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Monster-specific. Paralysis is painful but rarely needs a permanent slot."},{"id":"sleep_resistance","name":"Sleep Resistance","category":"Resistance","maxLevel":3,"decoName":"Pep Jewel 1 / Hard Pep Jewel 4","decoSlot":1,"description":"Reduces the duration of sleep.","levels":["Reduces sleep duration by 30%","Reduces sleep duration by 60%","Prevents sleep"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Situational. Sleep allows bomb setups from teammates so sometimes intentionally skipped."},{"id":"stun_resistance","name":"Stun Resistance","category":"Resistance","maxLevel":3,"decoName":"Steadfast Jewel 1 / Hard Steadfast Jewel 4","decoSlot":1,"description":"Reduces stun duration.","levels":["Reduces stun duration by 60%","Reduces stun duration by 90%","Prevents stun"],"ratings":{"GS":"B","LS":"B","SNS":"B","DB":"B","Lance":"B","GL":"B","Hammer":"B","HH":"B","SA":"B","CB":"B","IG":"B","LBG":"B","HBG":"B","Bow":"B"},"notes":"Universally recommended. Stun can lead to carting. Slot 1 cost is very cheap. Good filler."},{"id":"muck_resistance","name":"Muck Resistance","category":"Resistance","maxLevel":2,"decoName":"Muck Jewel 1","decoSlot":1,"description":"Reduces impairments while stuck in monster muck or deep snow.","levels":["Reduces movement speed limits","Negates movement speed limits"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Very niche \u2014 specific maps/monsters only."},{"id":"blast_resistance","name":"Blast Resistance","category":"Resistance","maxLevel":3,"decoName":"Antiblast Jewel 1 / Hard Antiblast Jewel 4","decoSlot":1,"description":"Grants protection against blastblight.","levels":["Delays blastblight, reduces blast damage","Greatly delays blastblight","Prevents blastblight"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Monster-specific. Useful against Magnamalo."},{"id":"partbreaker","name":"Partbreaker","category":"Utility","maxLevel":3,"decoName":"Destroyer Jewel 2 / Destroyer Jewel+ 4","decoSlot":2,"description":"Makes it easier to break or sever parts of monsters.","levels":["Part damage +10%","Part damage +20%","Part damage +30%"],"ratings":{"GS":"B","LS":"B","SNS":"B","DB":"B","Lance":"C","GL":"C","Hammer":"B","HH":"B","SA":"B","CB":"B","IG":"B","LBG":"B","HBG":"B","Bow":"B"},"notes":"Useful for farming specific parts. Not a DPS skill \u2014 purely for breaking parts faster."},{"id":"speed_sharpening","name":"Speed Sharpening","category":"Utility","maxLevel":3,"decoName":"Grinder Jewel 1 / Hard Grinder Jewel 4","decoSlot":1,"description":"Speeds up weapon sharpening when using a whetstone.","levels":["Removes 1 cycle from sharpening","Removes 2 cycles from sharpening","Removes 3 cycles from sharpening"],"ratings":{"GS":"A","LS":"B","SNS":"B","DB":"A","Lance":"B","GL":"N","Hammer":"B","HH":"B","SA":"B","CB":"B","IG":"B","LBG":"N","HBG":"N","Bow":"N"},"notes":"QoL that can save your life. At Lv3 sharpening is near instant. Cheap slot 1 cost."},{"id":"good_luck","name":"Good Luck","category":"Gathering","maxLevel":3,"decoName":"Fate Jewel 3 / Fate Jewel+ 4","decoSlot":3,"description":"Good chance of increased quest rewards.","levels":["Slightly increases luck","Increases luck","Greatly increases luck"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Farm utility only. No combat value."},{"id":"botanist","name":"Botanist","category":"Gathering","maxLevel":4,"decoName":"Botany Jewel 1 / Hard Botany Jewel 4","decoSlot":1,"description":"Increases the quantity of herbs and consumable items gathered.","levels":["+1 herb item per gather","+1 herb/fruit/nut/seed per gather","+1 herb/fruit/nut/seed/insect per gather","+1 herb/fruit/nut/seed/insect/mushroom per gather"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Gathering only. No combat value."},{"id":"geologist","name":"Geologist","category":"Gathering","maxLevel":3,"decoName":"Geology Jewel 1 / Hard Geology Jewel 4","decoSlot":1,"description":"Increases the number of times you can use a gathering point.","levels":["+1 gather from bonepiles","+1 gather from gathering points","+1 gather from mining outcrops"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Gathering only. No combat value."},{"id":"mushroomancer","name":"Mushroomancer","category":"Utility","maxLevel":3,"decoName":"Fungiform Jewel 3 / Fungiform Jewel+ 4","decoSlot":3,"description":"Lets you digest mushrooms that would otherwise be inedible.","levels":["Digest blue mushrooms and toadstools","Also digest nitroshrooms and parashrooms","Also digest mandragoras and exciteshrooms"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Niche utility. Exciteshroom mimics max potions. Mandragora recovers full health. Interesting but slot-inefficient."},{"id":"item_prolonger","name":"Item Prolonger","category":"Utility","maxLevel":3,"decoName":"Enduring Jewel 2 / Hard Enduring Jewel 4","decoSlot":2,"description":"Extends the duration of some item effects.","levels":["Item effect duration +10%","Item effect duration +25%","Item effect duration +50%"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Minor QoL for extending Demon Drug, Might Seed, etc. Rarely worth a slot."},{"id":"wide_range","name":"Wide-Range","category":"Utility","maxLevel":5,"decoName":"Friendship Jewel 2 / Hard Friendship Jewel 3 / Hard Friendship Jewel+ 4","decoSlot":2,"description":"Allows the effects of certain items to also affect nearby allies.","levels":["Items affect allies at 33% efficacy (small radius)","Items affect allies at 33% efficacy (wider radius)","Items affect allies at 66% efficacy (wider radius)","Items affect allies at 66% efficacy (much wider radius)","Items affect allies at full efficacy (much wider radius)"],"ratings":{"GS":"C","LS":"C","SNS":"B","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"A","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Support-oriented. SNS and HH are natural support weapons. Not useful in solo play."},{"id":"free_meal","name":"Free Meal","category":"Utility","maxLevel":3,"decoName":"Satiated Jewel 1 / Hard Satiated Jewel 4","decoSlot":1,"description":"Chance of consuming a food or drink item for free.","levels":["Activates 10% of the time","Activates 25% of the time","Activates 45% of the time"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"QoL filler. Cheap slot 1. Mildly useful."},{"id":"bubbly_dance","name":"Bubbly Dance","category":"Utility","maxLevel":3,"decoName":"Bubble Jewel 2 / Bubble Jewel+ 4","decoSlot":2,"description":"Reduces bubbleblight and grants increased evasion when afflicted.","levels":["Reduces major bubbleblight effects","Converts major to minor bubbleblight, increases evasiveness","Also inflicts bubbleblight when doing consecutive evades"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"B","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Lv3 is interesting \u2014 grants evasion bonus buff during combat. Niche but fun on evasion-heavy weapons."},{"id":"bombardier","name":"Bombardier","category":"Utility","maxLevel":3,"decoName":"Bomber Jewel 1 / Hard Bomber Jewel 4","decoSlot":1,"description":"Increases the damage of explosive items.","levels":["Explosive power +10%","Explosive power +20%","Explosive power +30%"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Only affects bomb items, not weapon attacks. Purely farming/trap utility."},{"id":"capture_master","name":"Capture Master","category":"Gathering","maxLevel":1,"decoName":"None","decoSlot":null,"description":"High chance of increased capture rewards.","levels":["Activates skill effect"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Armor skill only. Farm utility."},{"id":"carving_master","name":"Carving Master","category":"Gathering","maxLevel":1,"decoName":"None","decoSlot":null,"description":"Lets you carve one additional time.","levels":["Activates skill effect"],"ratings":{"GS":"C","LS":"C","SNS":"C","DB":"C","Lance":"C","GL":"C","Hammer":"C","HH":"C","SA":"C","CB":"C","IG":"C","LBG":"C","HBG":"C","Bow":"C"},"notes":"Armor skill only. Farm utility."}]};
-const WM={"GS": {"full": "Great Sword", "icon": "GS"}, "LS": {"full": "Long Sword", "icon": "LS"}, "SNS": {"full": "Sword & Shield", "icon": "SNS"}, "DB": {"full": "Dual Blades", "icon": "DB"}, "Lance": {"full": "Lance", "icon": "LA"}, "GL": {"full": "Gunlance", "icon": "GL"}, "Hammer": {"full": "Hammer", "icon": "HA"}, "HH": {"full": "Hunting Horn", "icon": "HH"}, "SA": {"full": "Switch Axe", "icon": "SA"}, "CB": {"full": "Charge Blade", "icon": "CB"}, "IG": {"full": "Insect Glaive", "icon": "IG"}, "LBG": {"full": "Light Bowgun", "icon": "LBG"}, "HBG": {"full": "Heavy Bowgun", "icon": "HBG"}, "Bow": {"full": "Bow", "icon": "BOW"}};
-const TORDER=['S','A','B','C','N','X'];
-const TDESC={S:'Essential — always consider running',A:'Very strong — worth slotting',B:'Situationally useful',C:'Niche / filler',N:'Not applicable for this weapon',X:'DO NOT USE — wastes slots'};
+const WM = {
+  GS:    {full:"Great Sword"},  LS:  {full:"Long Sword"},
+  SNS:   {full:"Sword & Shield"},DB:  {full:"Dual Blades"},
+  Lance: {full:"Lance"},        GL:  {full:"Gunlance"},
+  Hammer:{full:"Hammer"},       HH:  {full:"Hunting Horn"},
+  SA:    {full:"Switch Axe"},   CB:  {full:"Charge Blade"},
+  IG:    {full:"Insect Glaive"},LBG: {full:"Light Bowgun"},
+  HBG:   {full:"Heavy Bowgun"}, Bow: {full:"Bow"}
+};
 
-let aw='GS', cats=new Set(), showNX=false, sq='';
+const TORDER = ['S','A','B','C','N','X'];
+const TDESC = {
+  S:'Essential \u2014 always consider running',
+  A:'Very strong \u2014 worth slotting',
+  B:'Situationally useful',
+  C:'Niche / filler',
+  N:'Not applicable for this weapon',
+  X:'DO NOT USE \u2014 wastes slots'
+};
 
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+// Sunbreak-only skill IDs (armor skills + new Sunbreak decos)
+const SUNBREAK_IDS = new Set([
+  'dereliction','furious','mail_of_hellfire','bloodlust','berserk','strife',
+  'wind_mantle','powder_mantle','frostcraft','dragon_conversion','heaven_sent',
+  'frenzied_bloodlust','blood_awakening','buildup_boost','guts','stormsoul',
+  'wind_alignment','thunder_alignment','blood_rite','coalescence','burst',
+  'adrenaline_rush','sneak_attack','embolden','redirection','rapid_morph',
+  'grinder_s','bladescale_hone','element_exploit','tune_up','foray',
+  'charge_master','intrepid_heart','status_trigger','quick_breath',
+  'hellfire_cloak','defiance','bloodlust','chameleos_blessing','kushala_blessing',
+  'teostra_blessing','dragonheart','wirebug_whisperer','fortify','heroics',
+  'inspiration','shock_absorber','spiribirds_call','wall_runner','wall_runner_boost',
+  'master_mounter','diversion','leap_of_faith','hunger_resistance','jump_master',
+  'carving_pro','flinch_free','counterstrike'
+]);
 
-function buildWeapons(){
-  const g=document.getElementById('wgrid');
-  DATA.meta.weapons.forEach(w=>{
-    const m=WM[w];
-    const b=document.createElement('button');
-    b.className='wbtn'+(w===aw?' active':'');
-    b.dataset.w=w;
-    b.innerHTML=`${m.full}<span class="ab">${w}</span>`;
-    b.onclick=()=>{aw=w;document.querySelectorAll('.wbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');render()};
+let DATA = null;
+let aw = 'GS', cats = new Set(), showNX = false, sq = '';
+
+function esc(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function init() {
+  try {
+    const res = await fetch('./skills_data.json');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    DATA = await res.json();
+    document.getElementById('loadingState').remove();
+    buildUI();
+  } catch(e) {
+    document.getElementById('loadingState').innerHTML =
+      `<p class="error-msg">Failed to load skills_data.json: ${esc(e.message)}</p>
+       <p style="margin-top:.5rem;font-size:.85rem;color:var(--text-muted)">Make sure skills_data.json is in the same directory as index.html.</p>`;
+  }
+}
+
+function buildUI() {
+  const app = document.getElementById('app');
+
+  app.innerHTML = `
+    <p class="slabel">Select Weapon</p>
+    <div class="wgrid" id="wgrid"></div>
+    <div class="ctrl">
+      <div class="srchwrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="srch" id="srch" type="text" placeholder="Search skills, decos, categories&hellip;" autocomplete="off">
+      </div>
+      <div class="fgroup">
+        <span class="flabel">Category</span>
+        <div id="catFilters" style="display:flex;flex-wrap:wrap;gap:.35rem"></div>
+      </div>
+      <button class="nxbtn" id="nxbtn">Show N / X</button>
+    </div>
+    <div class="legend">
+      <div class="li"><div class="lp" style="background:var(--tier-s-bg);color:var(--tier-s);border:1px solid var(--tier-s)">S</div>Essential / Best-in-slot</div>
+      <div class="li"><div class="lp" style="background:var(--tier-a-bg);color:var(--tier-a);border:1px solid var(--tier-a)">A</div>Very strong</div>
+      <div class="li"><div class="lp" style="background:var(--tier-b-bg);color:var(--tier-b);border:1px solid var(--tier-b)">B</div>Situationally useful</div>
+      <div class="li"><div class="lp" style="background:var(--tier-c-bg);color:var(--tier-c);border:1px solid var(--tier-c)">C</div>Niche / filler</div>
+      <div class="li"><div class="lp" style="background:var(--tier-n-bg);color:var(--tier-n);border:1px solid var(--tier-n)">N</div>Not applicable</div>
+      <div class="li"><div class="lp" style="background:var(--tier-x-bg);color:var(--tier-x);border:1px solid var(--tier-x)">X</div>DO NOT USE</div>
+    </div>
+    <div id="tierList"></div>
+  `;
+
+  buildWeapons();
+  buildCats();
+  render();
+
+  document.getElementById('srch').oninput = e => { sq = e.target.value.trim(); render(); };
+  document.getElementById('nxbtn').onclick = function() {
+    showNX = !showNX;
+    this.classList.toggle('on', showNX);
+    this.textContent = showNX ? 'Hide N / X' : 'Show N / X';
+    render();
+  };
+}
+
+function buildWeapons() {
+  const g = document.getElementById('wgrid');
+  DATA.meta.weapons.forEach(w => {
+    const b = document.createElement('button');
+    b.className = 'wbtn' + (w === aw ? ' active' : '');
+    b.dataset.w = w;
+    b.innerHTML = `${WM[w].full}<span class="ab">${w}</span>`;
+    b.onclick = () => {
+      aw = w;
+      document.querySelectorAll('.wbtn').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      render();
+    };
     g.appendChild(b);
   });
 }
 
-function buildCats(){
-  const all=[...new Set(DATA.skills.map(s=>s.category))].sort();
-  const wrap=document.getElementById('catFilters');
-  const ab=document.createElement('button');
-  ab.className='fbtn active';ab.textContent='All';ab.dataset.c='__all__';
-  ab.onclick=()=>{cats.clear();wrap.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));ab.classList.add('active');render()};
+function buildCats() {
+  const allCats = [...new Set(DATA.skills.map(s => s.category))].sort();
+  const wrap = document.getElementById('catFilters');
+
+  const ab = document.createElement('button');
+  ab.className = 'fbtn active'; ab.textContent = 'All'; ab.dataset.c = '__all__';
+  ab.onclick = () => {
+    cats.clear();
+    wrap.querySelectorAll('.fbtn').forEach(x => x.classList.remove('active'));
+    ab.classList.add('active');
+    render();
+  };
   wrap.appendChild(ab);
-  all.forEach(cat=>{
-    const b=document.createElement('button');
-    b.className='fbtn';
-    b.textContent=cat.replace('Offense - ','').replace('Ammo/Coating','Ammo').replace('Resistance','Resist');
-    b.title=cat;b.dataset.c=cat;
-    b.onclick=()=>{
-      cats.has(cat)?cats.delete(cat):cats.add(cat);
-      if(cats.size===0){wrap.querySelectorAll('.fbtn').forEach(x=>x.classList.remove('active'));ab.classList.add('active')}
-      else{ab.classList.remove('active');b.classList.toggle('active',cats.has(cat))}
+
+  allCats.forEach(cat => {
+    const b = document.createElement('button');
+    b.className = 'fbtn';
+    b.textContent = cat.replace('Offense - ','').replace('Ammo/Coating','Ammo').replace('Resistance','Resist');
+    b.title = cat; b.dataset.c = cat;
+    b.onclick = () => {
+      cats.has(cat) ? cats.delete(cat) : cats.add(cat);
+      if (cats.size === 0) {
+        wrap.querySelectorAll('.fbtn').forEach(x => x.classList.remove('active'));
+        ab.classList.add('active');
+      } else {
+        ab.classList.remove('active');
+        b.classList.toggle('active', cats.has(cat));
+      }
       render();
     };
     wrap.appendChild(b);
   });
 }
 
-function render(){
-  const c=document.getElementById('tierList');
-  const q=sq.toLowerCase();
-  let skills=DATA.skills.filter(s=>{
-    const r=s.ratings[aw];
-    if(!showNX&&(r==='N'||r==='X'))return false;
-    if(cats.size>0&&!cats.has(s.category))return false;
-    if(q){
-      const h=(s.name+s.category+s.description+s.notes+s.decoName).toLowerCase();
-      if(!h.includes(q))return false;
+function render() {
+  const c = document.getElementById('tierList');
+  const q = sq.toLowerCase();
+
+  const skills = DATA.skills.filter(s => {
+    const rating = s.ratings[aw];
+    if (!showNX && (rating === 'N' || rating === 'X')) return false;
+    if (cats.size > 0 && !cats.has(s.category)) return false;
+    if (q) {
+      const hay = (s.name + s.category + s.description + (s.notes||'') + s.decoName).toLowerCase();
+      if (!hay.includes(q)) return false;
     }
     return true;
   });
 
-  const byT={};TORDER.forEach(t=>byT[t]=[]);
-  skills.forEach(s=>{const t=s.ratings[aw];if(byT[t])byT[t].push(s)});
-  const active=TORDER.filter(t=>byT[t].length>0);
+  const byT = {};
+  TORDER.forEach(t => byT[t] = []);
+  skills.forEach(s => { const t = s.ratings[aw]; if (byT[t]) byT[t].push(s); });
+  const active = TORDER.filter(t => byT[t].length > 0);
 
-  if(!active.length){c.innerHTML='<div class="empty">No skills match the current filters.</div>';return}
+  if (!active.length) {
+    c.innerHTML = '<div class="empty">No skills match the current filters.</div>';
+    return;
+  }
 
-  c.innerHTML=active.map(tier=>{
-    const ts=byT[tier];
+  c.innerHTML = active.map(tier => {
+    const ts = byT[tier];
     return `<section class="ts ts-${tier}">
       <div class="thead">
         <div class="tbadge">${tier}</div>
         <span class="ttitle">${TDESC[tier]}</span>
         <span class="trule"></span>
-        <span class="tcount">${ts.length} skill${ts.length!==1?'s':''}</span>
+        <span class="tcount">${ts.length} skill${ts.length !== 1 ? 's' : ''}</span>
       </div>
-      <div class="sgrid">${ts.map(s=>card(s,tier)).join('')}</div>
+      <div class="sgrid">${ts.map(s => card(s, tier)).join('')}</div>
     </section>`;
   }).join('');
 
-  c.querySelectorAll('.sc-toggle').forEach(btn=>{
-    btn.onclick=()=>{
-      const d=btn.nextElementSibling;
-      const o=d.classList.toggle('open');
-      btn.classList.toggle('open',o);
-      btn.querySelector('.tt').textContent=o?'Hide levels':'Show levels';
+  c.querySelectorAll('.sc-toggle').forEach(btn => {
+    btn.onclick = () => {
+      const d = btn.nextElementSibling;
+      const o = d.classList.toggle('open');
+      btn.classList.toggle('open', o);
+      btn.querySelector('.tt').textContent = o ? 'Hide levels' : 'Show levels';
     };
   });
 }
 
-function card(s,t){
-  const ds=s.decoSlot?` [Lv${s.decoSlot}]`:'';
-  const lvs=s.levels.map((l,i)=>`<li><span class="lvpip">Lv${i+1}</span>${esc(l)}</li>`).join('');
-  const decoHtml=s.decoName!=='None'?`<div class="sc-deco"><span class="deco-tag" title="${esc(s.decoName)}">${esc(s.decoName)}${ds}</span></div>`:'';
+function card(s, t) {
+  const ds = s.decoSlot ? ` [Lv${s.decoSlot}]` : '';
+  const isSB = SUNBREAK_IDS.has(s.id);
+  const sbBadge = isSB ? '<span class="sb-badge">SUNBREAK</span>' : '';
+  const hasNoDeco = !s.decoName || s.decoName === 'None';
+  const decoHtml = !hasNoDeco
+    ? `<div class="sc-deco"><span class="deco-tag" title="${esc(s.decoName)}">${esc(s.decoName)}${ds}</span></div>`
+    : '';
+  const lvs = s.levels.map((l, i) => `<li><span class="lvpip">Lv${i+1}</span>${esc(l)}</li>`).join('');
+
   return `<div class="sc sc-${t}">
     <div class="sc-head">
       <div class="sc-pip">${t}</div>
       <div class="sc-tw">
-        <div class="sc-name">${esc(s.name)}</div>
+        <div class="sc-name">${esc(s.name)}${sbBadge}</div>
         <div class="sc-cat">${esc(s.category)}</div>
       </div>
     </div>
@@ -330,17 +430,12 @@ function card(s,t){
     </button>
     <div class="sc-details">
       <ul class="lvls">${lvs}</ul>
-      ${s.notes?`<div class="note">${esc(s.notes)}</div>`:''}
+      ${s.notes ? `<div class="note">${esc(s.notes)}</div>` : ''}
     </div>
   </div>`;
 }
 
-document.getElementById('srch').oninput=e=>{sq=e.target.value.trim();render()};
-document.getElementById('nxbtn').onclick=function(){showNX=!showNX;this.classList.toggle('on',showNX);this.textContent=showNX?'Hide N / X':'Show N / X';render()};
-
-buildWeapons();
-buildCats();
-render();
+init();
 </script>
 </body>
 </html>
